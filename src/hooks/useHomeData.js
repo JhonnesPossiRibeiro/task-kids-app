@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { Alert } from 'react-native';
+import { useState, useCallback, useEffect } from 'react';
+import { Alert, AppState } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import db from '../database/db';
 
@@ -8,8 +8,39 @@ export function useHomeData() {
   const [selectedChild, setSelectedChild] = useState(null);
   const [tasks, setTasks] = useState([]);
 
-  const loadData = useCallback(() => {
+  const checkDayAndLoadData = useCallback(() => {
     try {
+      // 1. REGRA DE VIRADA DE DIA: Verificar se mudou o dia (com base na data atual do celular)
+      const todayStr = new Date().toISOString().split('T')[0]; // Formato "YYYY-MM-DD"
+      
+      db.runSync(`
+        CREATE TABLE IF NOT EXISTS app_settings (
+          key TEXT PRIMARY KEY,
+          value TEXT
+        );
+      `);
+
+      const lastDateRow = db.getFirstSync("SELECT value FROM app_settings WHERE key = 'last_reset_date'");
+      
+      console.log('Data salva no DB:', lastDateRow?.value, '| Data atual do celular:', todayStr);
+
+      if (!lastDateRow || lastDateRow.value !== todayStr) {
+        console.log('Virou o dia! Resetando tarefas e estrelas...');
+        
+        // Reseta todas as tarefas para pendentes (completed_today = 0)
+        db.runSync('UPDATE tasks SET completed_today = 0');
+        
+        // Se você também quer zerar as estrelas das crianças na virada do dia:
+        db.runSync('UPDATE children SET points = 0');
+        
+        // Atualiza a última data registrada para hoje
+        db.runSync(
+          "INSERT OR REPLACE INTO app_settings (key, value) VALUES ('last_reset_date', ?)",
+          [todayStr]
+        );
+      }
+
+      // 2. Carregar crianças
       const childResults = db.getAllSync('SELECT * FROM children ORDER BY id ASC');
       setChildren(childResults);
 
@@ -25,6 +56,7 @@ export function useHomeData() {
         setSelectedChild(null);
       }
 
+      // 3. Carregar tarefas atualizadas
       const taskResults = db.getAllSync('SELECT * FROM tasks ORDER BY id ASC');
       setTasks(taskResults);
     } catch (error) {
@@ -32,11 +64,25 @@ export function useHomeData() {
     }
   }, []);
 
+  // Executa toda vez que a tela ganha foco
   useFocusEffect(
     useCallback(() => {
-      loadData();
-    }, [loadData])
+      checkDayAndLoadData();
+    }, [checkDayAndLoadData])
   );
+
+  // Executa também caso o app volte do fundo (background) para o primeiro plano (foreground)
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (nextAppState === 'active') {
+        checkDayAndLoadData();
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [checkDayAndLoadData]);
 
   const handleSwitchChild = () => {
     if (children.length <= 1) return;
@@ -69,7 +115,7 @@ export function useHomeData() {
       );
 
       Alert.alert('Parabéns! 🌟', `Você ganhou ${task.reward_points} estrelinhas!`);
-      loadData();
+      checkDayAndLoadData();
     } catch (error) {
       console.error('Erro ao concluir tarefa:', error);
     }
@@ -90,7 +136,7 @@ export function useHomeData() {
         [newPoints, selectedChild.id]
       );
 
-      loadData();
+      checkDayAndLoadData();
     } catch (error) {
       console.error('Erro ao desmarcar tarefa:', error);
     }

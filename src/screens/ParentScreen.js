@@ -251,16 +251,6 @@ export default function ParentScreen() {
             <Text style={styles.headerSubtitle}>Painel Dos Pais</Text>
           </View>
         </View>
-
-        <View style={styles.headerRight}>
-          <View style={styles.starsBadge}>
-            <Text style={styles.starIcon}>⭐</Text>
-            <Text style={styles.starsCount}>48</Text>
-          </View>
-          <TouchableOpacity style={styles.profileButton}>
-            <Text>👤</Text>
-          </TouchableOpacity>
-        </View>
       </View>
 
       <KeyboardAvoidingView

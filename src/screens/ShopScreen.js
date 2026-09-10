@@ -58,10 +58,7 @@ export default function ShopScreen({ navigation }) {
           <View style={styles.starsBadge}>
             <Text style={styles.starIcon}>⭐</Text>
             <Text style={styles.starsCount}>{userStars}</Text>
-          </View>
-          <TouchableOpacity style={styles.profileButton}>
-            <Text>👤</Text>
-          </TouchableOpacity>
+          </View>          
         </View>
       </View>
 
