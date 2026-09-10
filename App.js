@@ -1,20 +1,47 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { initDatabase } from './src/database/db';
+import HomeScreen from './src/screens/HomeScreen';
+import ParentScreen from './src/screens/ParentScreen';
+import RewardsStoreScreen from './src/screens/RewardsStoreScreen';
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
+  useEffect(() => {
+    try {
+      initDatabase();
+      console.log('Banco de dados e tabelas inicializados com sucesso!');
+    } catch (error) {
+      console.error('Erro ao inicializar o banco:', error);
+    }
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home">
+        {/* Tela Principal da Criança */}
+        <Stack.Screen 
+          name="Home" 
+          component={HomeScreen} 
+          options={{ headerShown: false }} 
+        />
+        
+        {/* Painel de Configuração dos Pais */}
+        <Stack.Screen 
+          name="Parent" 
+          component={ParentScreen} 
+          options={{ title: 'Painel dos Pais', headerTintColor: '#2d3436' }} 
+        />
+
+        {/* Lojinha de Prêmios */}
+        <Stack.Screen 
+          name="RewardsStore" 
+          component={RewardsStoreScreen} 
+          options={{ headerShown: false }} 
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
