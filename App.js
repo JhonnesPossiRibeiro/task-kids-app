@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { initDatabase } from './src/database/db';
 import HomeScreen from './src/screens/HomeScreen';
 import ParentScreen from './src/screens/ParentScreen';
-import RewardsStoreScreen from './src/screens/RewardsStoreScreen';
+import RewardsStoreScreen from './src/screens/ShopScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -37,7 +37,7 @@ export default function App() {
 
         {/* Lojinha de Prêmios */}
         <Stack.Screen 
-          name="RewardsStore" 
+          name="Shop" 
           component={RewardsStoreScreen} 
           options={{ headerShown: false }} 
         />
