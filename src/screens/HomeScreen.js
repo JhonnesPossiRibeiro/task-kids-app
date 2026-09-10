@@ -23,6 +23,28 @@ export default function HomeScreen({ navigation }) {
     handleUndoTask,
   } = useHomeData();
 
+  // Função auxiliar para mapear a categoria/chave ao emoji correspondente
+  const getCategoryEmoji = (categoryKey) => {
+    switch (categoryKey?.toLowerCase()) {
+      case "comida":
+        return "🍽️";
+      case "estudo":
+        return "📚";
+      case "organizacao":
+        return "🧹";
+      case "lazer":
+        return "🧸";
+      case "descanso":
+        return "💤";
+      case "higiene":
+        return "🪥";
+      case "ajudar":
+        return "🤝";
+      default:
+        return "⭐";
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       {/* Header Superior */}
@@ -103,7 +125,7 @@ export default function HomeScreen({ navigation }) {
             {/* Botão de Atalho para a Lojinha */}
             <TouchableOpacity
               style={styles.storeShortcutBox}
-              onPress={() => navigation.navigate("Shop")} // ou a navegação para a tela da lojinha
+              onPress={() => navigation.navigate("Shop")}
             >
               <View style={styles.storeShortcutAvatar}>
                 <Text>🎁</Text>
@@ -173,15 +195,15 @@ export default function HomeScreen({ navigation }) {
               <View style={styles.missionCardHeader}>
                 <View style={styles.missionCategoryBox}>
                   <Text style={{ fontSize: 18 }}>
-                    {item.category.includes("Organização")
-                      ? "🛏️"
-                      : item.category.includes("Alimentação")
-                        ? "🍎"
-                        : "📚"}
+                    {getCategoryEmoji(item.category)}
                   </Text>
                 </View>
                 <View style={{ flex: 1, marginLeft: 10 }}>
-                  <Text style={styles.missionCategoryTag}>{item.category}</Text>
+                  <Text style={styles.missionCategoryTag}>
+                    {item.category
+                      ? item.category.charAt(0).toUpperCase() + item.category.slice(1)
+                      : "Geral"}
+                  </Text>
                   <Text style={styles.missionItemTitle}>{item.title}</Text>
                 </View>
                 <View style={styles.rewardBadge}>
@@ -191,7 +213,9 @@ export default function HomeScreen({ navigation }) {
                 </View>
               </View>
 
-              <Text style={styles.missionItemDesc}>{item.description}</Text>
+              {item.description ? (
+                <Text style={styles.missionItemDesc}>{item.description}</Text>
+              ) : null}
 
               <View style={styles.missionCardFooter}>
                 <View style={styles.timeTag}>
@@ -241,7 +265,7 @@ export default function HomeScreen({ navigation }) {
               activeOpacity={0.7}
             >
               <View style={styles.completedIconBox}>
-                <Text>✏️</Text>
+                <Text>{getCategoryEmoji(item.category)}</Text>
               </View>
               <View style={{ flex: 1, marginLeft: 12 }}>
                 <Text style={styles.completedItemTitle}>{item.title}</Text>
@@ -312,13 +336,6 @@ const styles = StyleSheet.create({
   },
   playerCardTitleRow: { flexDirection: "row", alignItems: "center", gap: 6 },
   playerCardTitle: { fontSize: 15, fontWeight: "bold", color: "#2d3436" },
-  switchButton: {
-    backgroundColor: "#f1f2f6",
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 12,
-  },
-  switchButtonText: { fontSize: 11, fontWeight: "600", color: "#636e72" },
 
   profilesRow: { flexDirection: "row", gap: 10, marginBottom: 16 },
   activeProfileBox: {
@@ -512,23 +529,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
-  bottomButtonsContainer: { marginTop: 10, marginBottom: 20, gap: 10 },
-  shopMagicButton: {
-    backgroundColor: "#006241",
-    paddingVertical: 14,
-    borderRadius: 16,
-    alignItems: "center",
-    elevation: 3,
-  },
-  shopMagicButtonText: { color: "#fff", fontWeight: "bold", fontSize: 15 },
-  parentPanelButton: {
-    backgroundColor: "#dceefc",
-    paddingVertical: 14,
-    borderRadius: 16,
-    alignItems: "center",
-    elevation: 1,
-  },
-  parentPanelButtonText: { color: "#0984e3", fontWeight: "bold", fontSize: 13 },
   storeShortcutBox: {
     flexDirection: "row",
     alignItems: "center",
